@@ -1,3 +1,16 @@
+/*
+FILENAME:	binsearchtree.cpp
+AUTHOR:		eric phung
+DATE:		2017.10.23
+PURPOSE:	main file for p-tree project in c++
+			binary search tree insertion
+			avl tree w/ proper balance
+			cs362 data structures coursework
+NOTES:		*	need to implement setter/getters for node height and node depth
+			*	need to balance for avl tree property
+			*	need proper pseudo code for for maxDepth(), minDepth(), fibaNacci()
+			*	implement a delete method???
+*/
 #include <iostream>
 #include <vector>
 #include "filereader.cpp"
@@ -6,17 +19,17 @@ struct Node {
 	int data;
 	Node *left;
 	Node *right;
+
 };
 
-Node* newNode(int data)
-{
+
+Node* newNode(int data) {
     Node* node = new Node;
     node->data = data;
     node->left = nullptr;
     node->right = nullptr;
     return node;
 }
-
 
 void insert(Node *root, Node *node) {
 	// traverse tree and insert node at correct location
@@ -26,6 +39,8 @@ void insert(Node *root, Node *node) {
 			// if root has a left child
 			root = root->left;
 			insert(root,node);
+
+
 		} else {
 			root->left = node;
 			return;
@@ -41,6 +56,7 @@ void insert(Node *root, Node *node) {
 			return;
 		}
 	}
+
 }// end insert
 
 void printNode(Node *node) {
@@ -61,24 +77,14 @@ void printNode(Node *node) {
 	
 }// end print node
 
-void printSubtree(Node *node) {
-	// should work for subtrees as well
-	std::cout << "root node [" << node->data << "]";
-
-
-	std::cout << std::endl;
-}
-
-// Function to print binary tree in 2D
-// It does reverse inorder traversal
-void printSubtree(Node *root, int space)
-{
+// function to print full tree
+void printSubtree(Node *root, int space) {
     // Base case
     if (root == nullptr)
         return;
  
     // Increase distance between levels
-    space += 10;
+    space += 2;
  
     // Process right child first
     printSubtree(root->right, space);
@@ -86,46 +92,74 @@ void printSubtree(Node *root, int space)
     // Print current node after space
     // count
     printf("\n");
-    for (int i = 10; i < space; i++)
+    for (int i = 2; i < space; i++)
         printf(" ");
-    printf("%d\n", root->data);
- 
+    printf("%d", root->data);
+    
     // Process left child
     printSubtree(root->left, space);
 }
 
+Node * findMin(Node *root) {
+	while(root->left != nullptr) {
+	    root = root->left;
+	}
+	return root;
+}// end findMin
+
+Node * findMax(Node *root){
+	while(root->right != nullptr) {
+	    root = root->right;
+	}
+	return root;
+}
+
+
+
+
 int main() {
 
 	// vector to hold node ptrs for garbage collection	
-	std::vector<Node *> v;
+	std::vector<Node *> ptrs;
 
 	// read integer values from txt file into a vector
-	std::vector<int> fileVector;
-	fileVector = getVectorFromFile("treenode.txt");
+	std::vector<int> nums;
+	nums = getIntegersFromFile("treenode.txt");
 
 	// create first tree node
-	Node *root = newNode(fileVector.at(0));
-	v.push_back(root);
+	Node *root = newNode(nums.at(0));
+	ptrs.push_back(root);
 
 	// insert the rest of the nodes from text file
-	for (int i = 1; i < fileVector.size(); ++i) {
-		Node *n = newNode(fileVector.at(i));
+	for (int i = 1; i < nums.size(); ++i) {
+		Node *n = newNode(nums.at(i));
 		insert(root,n),
-		v.push_back(n);
-
+		ptrs.push_back(n);
 	}// for integer values in txt file
 
-	printSubtree(root,1);
+	// print full tree to console
+	printSubtree(root,0);
+	printf("\n");
+
+
+	// find the minimum tree node
+	Node *min = findMin(root);
+	printNode(min);
+
+	// find maximum tree node
+	Node *max = findMax(root);
+	printNode(max);
 
 
 
-	// garbage collection
-	for (int i = 0; i < v.size(); ++i) {
-		delete v.at(i);
+
+
+
+
+	// garbage collection pointers
+	for (int i = 0; i < ptrs.size(); ++i) {
+		delete ptrs.at(i);
 	}
 
-
-
-	std::cout << "~ finished tree program successfully ~" << std::endl;
 	return 0;
 }// end main

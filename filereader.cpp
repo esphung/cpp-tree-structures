@@ -9,7 +9,7 @@
 #include <sstream>
 using namespace std;
 
-std::vector<int> getVectorFromFile(std::string filename) {
+std::vector<int> getIntegersFromFile(std::string filename) {
 	std::string line;
 	std::vector<int> vect;
 	ifstream myfile (filename);
