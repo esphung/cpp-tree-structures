@@ -6,14 +6,14 @@ PURPOSE:	main file for p-tree project in c++
 			binary search tree insertion
 			avl tree w/ proper balance
 			cs362 data structures coursework
-NOTES:		*	need to implement setter/getters for node height and node depth
-			*	need to balance for avl tree property
-			*	need proper pseudo code for for maxDepth(), minDepth(), fibaNacci()
-			*	implement a delete method???
+NOTES:		
+	*	need balance rotations for avl tree property
 */
 #include <iostream>
 #include <vector>
 #include "filereader.cpp"
+
+
 
 struct Node {
 	int data;
@@ -22,6 +22,28 @@ struct Node {
 
 };
 
+int getHeight(Node *node){
+	// get height from this node
+	int heightLeft 	= 0;
+	int heightRight = 0;
+
+	if (node->left != nullptr) {
+		heightLeft = getHeight(node->left);
+	}
+
+	if (node->right != nullptr) {
+		heightRight = getHeight(node->right);
+	}
+
+
+	if (heightLeft > heightRight) {
+		// left subtree is higher
+		return (heightLeft+1);
+	} else {
+		return (heightRight +1);
+	}
+
+}// end get height
 
 Node* newNode(int data) {
     Node* node = new Node;
@@ -39,7 +61,6 @@ void insert(Node *root, Node *node) {
 			// if root has a left child
 			root = root->left;
 			insert(root,node);
-
 
 		} else {
 			root->left = node;
@@ -77,7 +98,8 @@ void printNode(Node *node) {
 	
 }// end print node
 
-// function to print full tree
+
+// function to print tree
 void printSubtree(Node *root, int space) {
     // Base case
     if (root == nullptr)
@@ -151,6 +173,12 @@ int main() {
 	printNode(max);
 
 
+	// print tree height from root
+	printf("Tree Height is %i\n", getHeight(root));
+
+	// print min and max height
+	//printf("Max Node Height is %i\n", getHeight(max));
+	//printf("Min Node Height is %i\n", getHeight(min));
 
 
 
