@@ -7,187 +7,180 @@ PURPOSE:	main file for p-tree project in c++
 			avl tree w/ proper balance
 			cs362 data structures coursework
 NOTES:		
-	*	need balance rotations for avl tree property
+	*	needs balance rotations for avl tree property
 */
-#include <iostream>
-#include <vector>
-#include "filereader.cpp"
 
+#include "utility.h"
 
-
+// standard node struct for this program
 struct Node {
 	int data;
+	int height;
+	int depth;
 	Node *left;
 	Node *right;
-
 };
 
-int getHeight(Node *node){
-	// get height from this node
-	int heightLeft 	= 0;
-	int heightRight = 0;
+// global variables
+std::vector<int> nums;// values from file
+std::vector<Node *> ptrs;
+int balance;
+int insertions;
+int i;
+Node *root;
+Node *n;
 
-	if (node->left != nullptr) {
-		heightLeft = getHeight(node->left);
-	}
-
-	if (node->right != nullptr) {
-		heightRight = getHeight(node->right);
-	}
-
-
-	if (heightLeft > heightRight) {
-		// left subtree is higher
-		return (heightLeft+1);
-	} else {
-		return (heightRight +1);
-	}
-
-}// end get height
-
+// new node function
 Node* newNode(int data) {
-    Node* node = new Node;
-    node->data = data;
-    node->left = nullptr;
-    node->right = nullptr;
+    Node* node 		= new Node;
+    node->data 		= data;
+    node->left 		= NULL;
+    node->right 	= NULL;
+    ptrs.push_back(node);
     return node;
 }
+
+// function to print tree
+void printTree(Node *root, int space) {
+    // base case
+    if (root == NULL){return;}
+
+    // Increase distance between levels
+    space += space;
+ 
+    // Process right child first
+    printTree(root->right, space);
+ 
+    // Print current node after space
+    // count
+    for (int i = 2; i < space; i++)
+        printf(" ");
+    printf("%d\n", root->data);
+    
+    // Process left child
+    printTree(root->left, space);
+}
+
+// print a single node
+void printNode(Node *node) {
+	if (node->left != NULL) {
+		std::cout << "[" << node->left->data << "] <--- \t";
+	} else {
+		std::cout << "\t\t\t";
+	}
+	std::cout << "[" << node->data << "]";
+	if (node->right != NULL) {
+		std::cout << " ---> [" << node->right->data << "]\t";
+	} else {
+		std::cout << "\t\t\t\t";
+	}
+	std::cout << "\theight = " << node->height << ", " << "depth = " << node->depth;
+	std::cout << std::endl;
+}// end print node
 
 void insert(Node *root, Node *node) {
 	// traverse tree and insert node at correct location
 	if (node->data < root->data) {
 		// move left
-		if (root->left != nullptr) {
+		node->depth++;// inc depth
+		if (root->left != NULL) {
 			// if root has a left child
-			root = root->left;
+			root = std::move(root->left);
 			insert(root,node);
-
 		} else {
-			root->left = node;
-			return;
+			root->left = std::move(node);
 		}
 	} else if (node->data > root->data) {
 		// move right
-		if (root->right != nullptr) {
+		node->depth++;// inc depth
+		if (root->right != NULL) {
 			// if root has right child
-			root = root->right;
+			root = std::move(root->right);
 			insert(root,node);
 		} else {
-			root->right = node;
-			return;
+			root->right = std::move(node);
 		}
 	}
-
 }// end insert
 
-void printNode(Node *node) {
-	if (node->left != nullptr) {
-		std::cout << node->left << " left [" << node->left->data << "] <--- ";	
-	}
-	std::cout << "node [" << node->data << "] " << node;
-	if (node->right != nullptr) {
-		std::cout << " ---> right [" << node->right->data << "] " << node->right << std::endl;
-	}
-	else if ((node->left == nullptr) && (node->right == nullptr)){
-		// print leaf node
-		std::cout << " <--- leaf node " << std::endl;
-	}
-	else {
-		std::cout << std::endl;
-	}
-	
-}// end print node
+// get the height fo a node
+int getHeight(Node *node){
+	// get height from this node
+	int heightLeft 	= 0;
+	int heightRight = 0;
+	if (node->left != NULL)
+		heightLeft = getHeight(node->left);
+	if (node->right != NULL)
+		heightRight = getHeight(node->right);
 
+	if (heightLeft > heightRight)
+		// left subtree is higher
+		return (heightLeft+1);
+	else
+		// right subtree is higher
+		return (heightRight+1);
+}// end get height
 
-// function to print tree
-void printSubtree(Node *root, int space) {
-    // Base case
-    if (root == nullptr)
-        return;
- 
-    // Increase distance between levels
-    space += 2;
- 
-    // Process right child first
-    printSubtree(root->right, space);
- 
-    // Print current node after space
-    // count
-    printf("\n");
-    for (int i = 2; i < space; i++)
-        printf(" ");
-    printf("%d", root->data);
-    
-    // Process left child
-    printSubtree(root->left, space);
+// get the balance of a node
+int getBalance(Node *q) {
+	int balance = (q->right->height)-(q->left->height);
+	return balance;
+}// end get balance,sb
+
+// update all node heights
+void updateAllHeights(Node *q) {
+	// set all node heights
+	for (int i = 0; i < ptrs.size(); ++i)
+		ptrs.at(i)->height = (getHeight(ptrs.at(i))-1);
+}// end update heights
+
+// print debug information
+void printPointers(std::vector<Node *> v) {
+	// print all nodes and linked nodes
+	int i;
+	for (i = 0; i < v.size(); ++i)
+		printNode(v.at(i));
+	if (v.size() > insertions)
+		std::cout << "More pointer exister than objects! :o Oh noez!" << std::endl;
+	std::cout << "Active Pointers: " << v.size() << std::endl;
+	// print tree height from root
+	printf("Tree Height: %i\n", getHeight(root));
+	printf("Number of Nodes: %i\n", insertions);
+	printf("Balance is %i ", balance);
+	if (balance < 0) {std::cout << "=> Tree is Left-Heavy\n";}
+	else if (balance > 0) {std::cout << "Tree is Right-Heavy\n";}// end if
+	else {std::cout << "Even at zero" << std::endl;}
+
 }
 
-Node * findMin(Node *root) {
-	while(root->left != nullptr) {
-	    root = root->left;
-	}
-	return root;
-}// end findMin
-
-Node * findMax(Node *root){
-	while(root->right != nullptr) {
-	    root = root->right;
-	}
-	return root;
-}
-
-
-
-
+// main program
 int main() {
 
-	// vector to hold node ptrs for garbage collection	
-	std::vector<Node *> ptrs;
-
-	// read integer values from txt file into a vector
-	std::vector<int> nums;
+	// read contents from file
 	nums = getIntegersFromFile("treenode.txt");
+	
+	// create root node
+	root = newNode(nums.at(i));// BEFORE AVL IMPLEMENTATION!!!!
+	insertions++;
 
-	// create first tree node
-	Node *root = newNode(nums.at(0));
-	ptrs.push_back(root);
-
-	// insert the rest of the nodes from text file
-	for (int i = 1; i < nums.size(); ++i) {
-		Node *n = newNode(nums.at(i));
-		insert(root,n),
-		ptrs.push_back(n);
-	}// for integer values in txt file
-
-	// print full tree to console
-	printSubtree(root,0);
-	printf("\n");
+	// construction while loop
+	while(i < 5) {
+		n = newNode(nums.at(i));
+		insert(root,n);
+		insertions++;
+		updateAllHeights(root);
+		i++;
+	}// end while
 
 
-	// find the minimum tree node
-	Node *min = findMin(root);
-	printNode(min);
+	// print to console
+	std::cout << "Finished Program" << std::endl;
+	printTree(root,1);
+	//printPointers(ptrs);
 
-	// find maximum tree node
-	Node *max = findMax(root);
-	printNode(max);
-
-
-	// print tree height from root
-	printf("Tree Height is %i\n", getHeight(root));
-
-	// print min and max height
-	//printf("Max Node Height is %i\n", getHeight(max));
-	//printf("Min Node Height is %i\n", getHeight(min));
-
-
-
-
-
-	// garbage collection pointers
-	for (int i = 0; i < ptrs.size(); ++i) {
-		delete ptrs.at(i);
-	}
+	// garbage
+	nums.clear();
+	ptrs.clear();
 
 	return 0;
 }// end main

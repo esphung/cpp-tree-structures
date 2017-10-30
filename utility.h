@@ -1,49 +1,43 @@
-// filereader.cpp
-// reading a text file
-// eric phung
-// tree project - cs362
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <sstream>
-using namespace std;
 
+// functoin to read contents from file
 std::vector<int> getIntegersFromFile(std::string filename) {
 	std::string line;
 	std::vector<int> vect;
-	ifstream myfile (filename);
+	std::ifstream myfile (filename);
 
 	if (myfile.is_open()) {
 		while ( getline (myfile,line) ) {
-			//cout << line << '\n';
 			std::string str = line;
 			std::stringstream ss(str);
 			int i;
-
 			while (ss >> i) {
 			    vect.push_back(i);
 
 			    if (ss.peek() == ',')
 			        ss.ignore();
 			}// end while
-			//for (i=0; i< vect.size(); i++)
-				//std::cout << vect.at(i)<<std::endl;
-
 		}// end while
 		myfile.close();
-		//std::cout << "Found " << vect.size() << " elements in txt file" << std::endl;
-
 	}// end if
-	else cout << "Unable to open file" << std::endl;
-
+	else std::cout << "Unable to open file" << std::endl;
 	return vect;
 }// end getVectorFromFile
 
-/*int main () {
+// A utility function to get maximum of two integers
+int max(int a, int b) {
+    if (a > b) {
+        // a is greater than b
+        return a;
+    }
+    else {
+        // b is greater than a or equal
+        return b;
+    }
+}
+ 
 
-	std::vector<int> v; getVectorFromFile("treenode.txt");
-
-
-	return 0;
-}*/
